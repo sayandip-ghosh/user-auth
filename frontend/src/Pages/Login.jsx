@@ -37,7 +37,7 @@ const Login = () => {
         toast.success('Login successful! Redirecting to Home Page...');
         
         localStorage.setItem('token', jwtToken);
-        localStorage.setItem('loogedInUser', response.data.name);
+        localStorage.setItem('loggedInUser', response.data.name);
         setTimeout(() => {
           navigate('/home');
         }, 2000);  // Delay the navigation to allow user to see the toast
