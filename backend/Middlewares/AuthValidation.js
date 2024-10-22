@@ -8,9 +8,11 @@ const signupValidation = (req,res,next)=>{
         password: joi.string().min(4).max(20).required()
     });
     const {error} =schema.validate(req.body)
+    
     if(error){
         return res.status(400)
         .json({message: "Bad request",error})
+        
     }
     next();
 }

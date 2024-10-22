@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import axios from 'axios';
+import 'react-toastify/dist/ReactToastify.css';  // Import this in your component or main file
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -7,6 +11,8 @@ const Signup = () => {
     password: ''
   });
 
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -14,10 +20,37 @@ const Signup = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form Data Submitted:', formData);
-    // Add your form submission logic here
+    const { name, email, password } = formData;
+    
+    // Check for empty fields
+    if (!name || !email || !password) {
+      toast.error('Please fill in all fields');
+    }
+
+    try {
+      const response = await axios.post('http://localhost:8080/auth/signup', formData);
+      console.log(response);
+      
+      if (response.data.success) {
+        toast.success('Signup successful! Redirecting to login...');
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);  // Delay the navigation to allow user to see the toast
+      }
+      else {
+        toast.error('Signup failed, please try again.');
+      }
+    } catch (error) {
+      console.error(error);
+      if(error.response.data.message === 'User already exists')
+        toast.error(error.response.data.message);
+    else if(error.response.data.error.details[0].message)
+      toast.error(error.response.data.error.details[0].message);
+      else
+      toast.error('An error occurred, please try again later.');
+    }
   };
 
   return (
@@ -84,9 +117,14 @@ const Signup = () => {
             >
               Sign Up
             </button>
+            <span className='hover:text-blue-600'>
+                <Link to='/login'>Already have an account? Login</Link>
+            </span>
           </div>
         </form>
+        
       </div>
+      <ToastContainer />
     </div>
   );
 };
