@@ -117,7 +117,8 @@ const Signup = () => {
             >
               Sign Up
             </button>
-            <span className='hover:text-blue-600'>
+            <span className='hover:text-blue-600'> 
+              <br />
                 <Link to='/login'>Already have an account? Login</Link>
             </span>
           </div>

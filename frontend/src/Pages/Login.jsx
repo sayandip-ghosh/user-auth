@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -13,10 +19,39 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form Data Submitted:', formData);
-    // Add your form submission logic here
+    const { email, password } = formData;
+    
+    // Check for empty fields
+    if (!email || !password) {
+      toast.error('Please fill in all fields');
+    }
+
+    try {
+      const response = await axios.post('http://localhost:8080/auth/login', formData);
+      console.log(response);
+      const jwtToken = response.data.jwtToken
+      
+      if (response.data.success) {
+        toast.success('Login successful! Redirecting to Home Page...');
+        
+        localStorage.setItem('token', jwtToken);
+        localStorage.setItem('loogedInUser', response.data.name);
+        setTimeout(() => {
+          navigate('/home');
+        }, 2000);  // Delay the navigation to allow user to see the toast
+      }
+      else {
+        toast.error('Login failed, please try again.');
+      }
+    } catch (error) {
+      console.error(error);
+       if(error.response.data.message)
+      toast.error(error.response.data.message);
+      else
+      toast.error('An error occurred, please try again later.');
+    }
   };
 
   return (
@@ -66,9 +101,14 @@ const Login = () => {
             >
               Login
             </button>
+            <span className='hover:text-blue-600'>
+              <br />
+                <Link to='/signup'>Don't have an account? SignUp</Link>
+            </span>
           </div>
         </form>
       </div>
+      <ToastContainer />
     </div>
   );
 };
